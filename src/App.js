@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+
+const CORS_PROXY = 'https://cors-anywhere.herokuapp.com/'; // CORS proxy URL
 
 const App = () => {
   const [userLocation, setUserLocation] = useState(null);
+  const [time, setTime] = useState([]);
 
-
-  //Fetching the user's location on mount
   useEffect(() => {
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
@@ -23,17 +25,29 @@ const App = () => {
     }
   }, []);
 
+  useEffect(() => {
+    if (userLocation) {
+      const url = `${CORS_PROXY}https://timeapi.io/api/Time/current/coordinate?latitude=${userLocation.latitude}&longitude=${userLocation.longitude}`;
+
+      axios.get(url)
+        .then((response) => {
+          setTime([response.data]);
+        })
+        .catch((error) => {
+          console.error('Error fetching data:', error);
+        });
+    }
+  }, [userLocation]);
 
   return (
     <div>
       <h1>User Location:</h1>
-      {userLocation ? (
-        <p>
-          Latitude: {userLocation.latitude}, Longitude: {userLocation.longitude}
-        </p>
-      ) : (
-        <p>Loading location...</p>
-      )}
+      {time.map((item) => (
+        <div key={item.id}>
+          <p>Timezone: {item.timezone}</p>
+          <p>Time: {item.date_time}</p>
+        </div>
+      ))}
     </div>
   );
 };
