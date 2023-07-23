@@ -1,25 +1,41 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from 'react';
 
-function App() {
+const App = () => {
+  const [userLocation, setUserLocation] = useState(null);
+
+
+  //Fetching the user's location on mount
+  useEffect(() => {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
+        },
+        (error) => {
+          console.error('Error getting location:', error.message);
+        }
+      );
+    } else {
+      console.log('Geolocation is not available in this browser.');
+    }
+  }, []);
+
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
+    <div>
+      <h1>User Location:</h1>
+      {userLocation ? (
         <p>
-          Edit <code>src/App.js</code> and save to reload.
+          Latitude: {userLocation.latitude}, Longitude: {userLocation.longitude}
         </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      ) : (
+        <p>Loading location...</p>
+      )}
     </div>
   );
-}
+};
 
 export default App;
